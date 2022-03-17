@@ -17,11 +17,14 @@
       <button v-on:click="joinRoom(1)">Room 1</button>
       <button v-on:click="joinRoom(2)">Room 2</button>
     </p> -->
+  <div class="grid grid-cols-1 grid-rows-3 h-screen">
+    <div>
     <div class="flex justify-center" v-for="row in [0,1,2,3,4, 5]">
       <CharBox v-for="field in [0,1,2,3,4]" :char="guess.length > field ? guess[field] : ''" />
     </div>
+    </div>
     <div>
-      <div class="card">
+      <div class="card grow">
         <ul>
           <li v-for="(player, index) in gameData.players">
             <p :class="player.name == store.state.playerName && 'font-bold'">{{ player.name }} {{ player.name == store.state.playerName ? '(You 😁)' : ''}}</p>
@@ -33,6 +36,7 @@
       <Keyboard @letter-event="(e) => setGuess(e)" @send-guess="sendGuess" />
     </div>
   </div>
+</div>
 </template>
 
 <script>

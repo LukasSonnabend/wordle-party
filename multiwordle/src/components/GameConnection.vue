@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import Modal from "../components/meta/Modal.vue";
-import { Ref, ref, onMounted } from "vue";
+import { Ref, ref, onMounted} from "vue";
 import { AdjustmentsIcon } from "@heroicons/vue/outline";
 import store from "../store";
 import io from "socket.io-client";
@@ -10,57 +10,55 @@ import io from "socket.io-client";
 let socket = ref(null);
 // created
 onMounted(() => {
-      socket.value = io("http://localhost:3030", {
-      withCredentials: true,
-    });
-})
-
-
+  socket.value = io("http://localhost:3030", {
+    withCredentials: true,
+  });
+});
 
 const showModal: Ref = ref(false);
 const playerName: Ref = ref(store.state.playerName);
 const roomId: Ref = ref(store.state.roomNumber);
 
-
-
-
-// function for setting player name
-const setPlayerName = (name: string) => {
-  // set player name
-  store.actions.setPlayerName({ name });
-  // set modal to false
-  playerName.value = name;
-};
-// function for setting room id
-const setRoomId = (id: string) => {
-  // set room id
-  store.actions.setRoomId({ id });
-  // set modal to false
-  roomId.value = id;
-  socket.value.emit("join_room", {id, name: store.state.playerName});
-};
-
+//roomId.value = id;
+//socket.value.emit("join_room", {id, name: store.state.playerName});
 
 const toggleModal = () => {
-  showModal.value = !showModal.value
-}
+  showModal.value = !showModal.value;
+};
 
 function setGameInfo(roomId: string, playerName: string) {
   // set game info
-  console.log(roomId)
-  setPlayerName(playerName);
-  setRoomId(roomId);
+  fetch("http://localhost:3030/auth/enter_room", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      room: roomId,
+      username: playerName,
+    }),
+  }).then(response => response.json()).then((res) => {
+    // if (res.room_entered) {
+      console.log(res.user.name)
+      // TODO: Somethings fucked right here
+      store.actions.setPlayerName(res.user.name);
+      store.actions.setRoomId(res.room);
+    // }
+  });
+
   toggleModal();
-};
-
-
+}
 </script>
 
 <template>
   <Modal v-model="showModal">
     <template v-slot:button>
-       <button class="bg-pink-500 text-white active:bg-pink-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button" v-on:click="toggleModal()">
-         <AdjustmentsIcon class="w-6 h-6" />
+      <button
+        class="rounded-full bg-pink-500 text-white active:bg-pink-600 font-bold uppercase text-sm px-2 md:px-6 py-2 md:py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+        type="button"
+        v-on:click="toggleModal()"
+      >
+        <AdjustmentsIcon class="w-5 md:w-6 h-5 md:h-6" />
       </button>
     </template>
     <template v-slot:title>
@@ -121,6 +119,4 @@ function setGameInfo(roomId: string, playerName: string) {
   </Modal>
 </template>
 
-<style>
-
-</style>
+<style></style>

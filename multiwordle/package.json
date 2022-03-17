@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@heroicons/vue": "^1.0.6",
+    "axios": "^0.26.1",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "vue": "^3.2.25"
