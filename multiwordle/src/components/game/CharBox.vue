@@ -1,23 +1,17 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
-
-defineProps<{ char?: string, status?: number}>()
-const boxStatusClass = (status: number) => {
-  if (status === 1)
-    return "bg-gray-400";
-  else if (status === 2)
-    return "bg-yellow-500";
-  else if (status === 3)
-    return "bg-green-500";
+defineProps<{ char?: string, lockChar?: string, status?: number}>()
+const boxStatusClass = () => {
+  if (lockChar !== false)
+    return "bg-green-400 text-black";
   else
-    return "bg-black"
+    return ""
 }
 </script>
 
 <template>
-  <div class="select-none table h-16 w-16 lg:h-18 lg:w-18 border-2 border-indigo-500 rounded-lg">
-    <div class="text-5xl text-slate-500 text-center table-cell align-middle">
-      {{ char }}
+  <div :class="lockChar != '' ? 'border-gray-800' : 'border-indigo-500'" class="select-none table h-16 w-16 lg:h-18 lg:w-18 border-2 rounded-lg">
+    <div :class="lockChar !='' && 'bg-green-400 text-black'" class="text-5xl text-slate-500 text-center table-cell align-middle">
+      {{ lockChar != '' ? lockChar : char }}
     </div>
   </div>
 </template>

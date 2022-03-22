@@ -6,6 +6,7 @@ import GameConnection from "../GameConnection.vue";
 const showMenu = ref(false);
 const store = inject("store");
 
+
 function toggleNavbar() {
   showMenu.value = !showMenu.value;
 }
@@ -26,7 +27,7 @@ function toggleNavbar() {
         </div>
          <div>
         <b>
-          RoomId: {{ store.state.roomNumber }}
+          RoomId: {{ store.state.game && store.state.game.gameId }}
         </b>
         </div>
         <GameConnection />

@@ -2,18 +2,19 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import Modal from "../components/meta/Modal.vue";
-import { Ref, ref, onMounted} from "vue";
+import { Ref, ref, onMounted, inject, computed } from "vue";
 import { AdjustmentsIcon } from "@heroicons/vue/outline";
-import store from "../store";
-import io from "socket.io-client";
+// import store from "../store";
+import { stringifyStyle } from "@vue/shared";
 
-let socket = ref(null);
+const store = inject("store");
+// let socket = ref(null);
 // created
-onMounted(() => {
-  socket.value = io("http://localhost:3030", {
-    withCredentials: true,
-  });
-});
+// onMounted(() => {
+//   socket.value = io("http://ubuntu:3031", {
+//     withCredentials: true,
+//   });
+// });
 
 const showModal: Ref = ref(false);
 const playerName: Ref = ref(store.state.playerName);
@@ -26,25 +27,74 @@ const toggleModal = () => {
   showModal.value = !showModal.value;
 };
 
+//computed
+const saveable = computed(() => {
+  return (
+    playerName.value != "" &&
+    roomId.value != null &&
+    playerName.value !== store.state.playerName
+  );
+});
+
+
+function joinRoom(roomId: string, playerName: string) {
+   // collect data to send to the server
+    var data = {
+        gameId: roomId,
+        playerName: playerName,
+        socketId: store.state.socket.id
+    };
+
+    // Send the gameId and playerName to the server
+    store.state.socket.emit('playerJoinGame', data);
+    // Set the appropriate properties for the current player.
+    // state.actions.role = 'Player';
+    store.actions.setPlayerName(data.playerName);
+    store.actions.setRoomId(data.gameId);
+
+    toggleModal();
+}
+
 function setGameInfo(roomId: string, playerName: string) {
   // set game info
-  fetch("http://localhost:3030/auth/enter_room", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      room: roomId,
-      username: playerName,
-    }),
-  }).then(response => response.json()).then((res) => {
-    // if (res.room_entered) {
-      console.log(res.user.name)
-      // TODO: Somethings fucked right here
-      store.actions.setPlayerName(res.user.name);
-      store.actions.setRoomId(res.room);
-    // }
-  });
+      var data = {
+        gameId: roomId,
+        playerName: playerName
+    };
+
+        // Send the gameId and playerName to the server
+    store.state.socket.emit('hostCreateNewGame', data);
+    store.actions.setPlayerName(data.playerName);
+    store.actions.setRoomId(data.gameId);
+
+    // Set the appropriate properties for the current player.
+    // state.actions.role = 'Player';
+    // store.actions.setPlayerName(data.playerName);
+
+  // fetch("http://ubuntu:3031/auth/enter_room", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     room: roomId,
+  //     username: playerName,
+  //   }),
+  // })
+  //   .then((response) => response.json())
+  //   .then((res) => {
+  //     // if (res.room_entered) {
+  //     console.log("PlayerName: ", res);
+  //     // TODO: Somethings fucked right here
+  //     if (res.room_entered) {
+  //       store.actions.setPlayerName(res.user.name);
+  //       store.actions.setRoomId(res.room);
+  //     }
+  //     // }
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
 
   toggleModal();
 }
@@ -108,13 +158,22 @@ function setGameInfo(roomId: string, playerName: string) {
       >
         Close
       </button>
-      <button
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        :disabled="playerName === '' || roomId === null"
-        @click="setGameInfo(roomId, playerName)"
-      >
-        Save
-      </button>
+      <span>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 disabled:bg-slate-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          :disabled="!saveable"
+          @click="setGameInfo(roomId, playerName)"
+        >
+          Create Room
+        </button>
+        <button
+          class="ml-2 bg-blue-500 hover:bg-blue-700 disabled:bg-slate-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          :disabled="!saveable"
+          @click="joinRoom(roomId, playerName)"
+        >
+          Join Room
+        </button>
+      </span>
     </template>
   </Modal>
 </template>

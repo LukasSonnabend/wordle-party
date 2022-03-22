@@ -10,15 +10,16 @@ const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://ubuntu:3000",
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
+const mwGame = require("./mwgame");
 
 app.use(helmet());
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "http://ubuntu:3000",
   credentials: true,
 }));
 
@@ -28,8 +29,11 @@ app.get("/", (req, res) => {
   res.json("hi");
 });
 
-io.on("connect", (socket) => {});
+io.sockets.on('connection', socket => {
+  console.log('client connected: ', socket.id);
+  mwGame.initGame(io, socket);
+});
 
-server.listen(3030, () => {
-  console.log("Server started on port 3030");
+server.listen(3031, () => {
+  console.log("Server started on port 3031");
 });

@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
+import {computed, ref} from "vue";
+defineProps<{ status?: number, letter: string }>()
 
-defineProps<{ classPass?: string, status?: number, letter: string }>()
+const keyClass = (status) => {
+  if (status == 1) {
+    return 'bg-slate-100'
+  } else if (status == 2) {
+    return 'bg-yellow-200'
+  } else if (status == 3) {
+    return 'bg-green-400'
+  }
+  return 'bg-slate-300'
+}
 
 </script>
 
 <template>
-<button class="key cursor-pointer grow overflow-hidden text-center flex flex-col justify-center bg-slate-300 hover:bg-slate-200 text-black rounded-md">
+<button :class="keyClass(status)" class="key cursor-pointer grow overflow-hidden text-center flex flex-col justify-center hover:bg-slate-200 text-black rounded-md drop-shadow">
   <span>
     {{ letter }}
 </span>
