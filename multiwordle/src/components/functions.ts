@@ -6,6 +6,8 @@ export default function validateGuess(guessString: string, wordID: number[], wor
   let guessStringArray = guessString.split("")
   const counts = {};
 
+
+  //TODO: hier wird noch falsch evaluiert
   //TODO: disable counts for hard mode
   for (const char of word2GuessArray) {
     counts[char] = counts[char] ? counts[char] + 1 : 1;

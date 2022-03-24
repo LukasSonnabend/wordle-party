@@ -11,7 +11,7 @@ const keyStatus = computed(() => {
     return {}
   }
   for (let guessRound of store.state.game.guesses) {
-    for (let guesses of Object.keys(guessRound) ) {
+    for (let guesses of Object.keys(guessRound).filter((key) => guessRound[key].hasOwnProperty("guess"))) {
       // guesser has evaluation: object and guess: string
       for (let i = 0 ; i < guessRound[guesses].guess.length || 0; i++) {
         statusObject[guessRound[guesses].guess[i]] = guessRound[guesses].evaluation[i];

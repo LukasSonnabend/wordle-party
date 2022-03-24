@@ -90,12 +90,14 @@ function createNewGame(data, hostId) {
 
 async function playerAnswer(data) {
 
-  console.log("playerAnswer: ", data)
+
 
   const clients = io.sockets.adapter.rooms.get(data.gameId);
   // const numClients = clients ? clients.size : 0
 
   io.sockets.in(data.game.mySocketId).emit('guess2Host', { sender: data.playerName, guess: data.guess });
+
+  console.log("Sending: ", data.playerName, " guess: ", data.guess)
 }
 
 async function hostUpdate(data) {

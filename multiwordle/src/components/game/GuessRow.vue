@@ -4,22 +4,22 @@ import CharBox from "./CharBox.vue";
 
 defineProps<{ game?: object; guess: string }>();
 
-const guessedChars = computed(() => {
-  // const WORD_LENGTH = 5;
-  const statusArray = [];
-  if (store.state.game.guesses === undefined)
-    return []
+// const guessedChars = computed(() => {
+//   // const WORD_LENGTH = 5;
+//   const statusArray = [];
+//   if (store.state.game.guesses === undefined)
+//     return []
 
-  for (let guessRound of store.state.game.guesses)
-    for (let guesses of Object.keys(guessRound))
-      for (let i = 0 ; i < guessRound[guesses].guess.length; i++)
-        if (guessRound[guesses].evaluation[i] === 3)
-          statusArray.push(guessRound[guesses].guess[i])
-        else
-          statusArray.push(false)
+//   for (let guessRound of store.state.game.guesses)
+//     for (let guesses of Object.keys(guessRound).filter((key) => guessRound[key].hasOwnProperty("guess")) )
+//       for (let i = 0 ; i < guessRound[guesses].guess.length; i++)
+//         if (guessRound[guesses].evaluation[i] === 3)
+//           statusArray.push(guessRound[guesses].guess[i])
+//         else
+//           statusArray.push(false)
 
-  return statusArray
-});
+//   return statusArray
+// });
 
 const store = inject("store");
 
@@ -28,9 +28,10 @@ const store = inject("store");
   <div>
     <span v-if="game.word" class="flex justify-center gap-1" v-for="row in [0]">
       <CharBox
-        v-for="(field, index) in game.word.title.length"
-        :lockChar="guessedChars.length > 0 ? guessedChars[field-1] : false"
-        :char="guess.length > index ? guess[field-1] : ''"
+        v-for="field in game.word.title.length"
+        :key="field"
+        :lockChar="store.guessedChars.value[field] !== false ? store.guessedChars.value[field-1] : false"
+        :char="guess.length+1 > field ? guess[field-1] : ''"
       />
     </span>
   </div>

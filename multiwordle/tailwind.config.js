@@ -9,7 +9,11 @@ module.exports = {
     extend: {},
   },
   variants: {
-    extend: {},
+    extend: {
+      FontFace: {
+        merriweather: ["Merriweather", "serif"],
+      }
+    },
   },
   plugins: [],
 }

@@ -15,6 +15,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
 const mwGame = require("./mwgame");
 
 app.use(helmet());
@@ -28,6 +29,10 @@ app.use("/auth", authRouter);
 app.get("/", (req, res) => {
   res.json("hi");
 });
+
+// build crazy dict with all words
+
+
 
 io.sockets.on('connection', socket => {
   console.log('client connected: ', socket.id);

@@ -121,8 +121,7 @@ def get_words(cat, length):
 
 # export to csv file
 def export_tables(c):
-  # write to file
-  file = open("export.csv", "w")
+  # write to fil
   # write line by line to file
   c.execute("SELECT * FROM Questions")
   all_rows = c.fetchall()
@@ -143,12 +142,20 @@ def export_tables(c):
   "sport": 31,
   }
 
-
-
-  for (id, title, category, length) in all_rows:
+  file1 = open("hints.csv", "w")
+  file = open("export.csv", "w")
+  for (id, title, category length) in all_rows:
     # file.write("{" + f'"id":{id+13}, "title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
     file.write("{" + f'"title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
+
+  for (id, title, category length) in all_rows:
+    # file.write("{" + f'"id":{id+13}, "title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
+    file1.write("{" + f'"title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
+
+
+
   file.close();
+  file1.close();
 
 
 if __name__ == "__main__":

@@ -36,19 +36,20 @@
         </div>
       </div>
     </div>
-    <div v-else class="grid grid-cols-1 grid-rows-3 h-screen">
-     <div>
-      <div v-if="gameHost">
-        {{
-          store.state.game.guesses && JSON.stringify(store.state.game.guesses)
-        }}
-      <h3>Ratewort: <b>{{ store.state.game.word.title }}</b></h3>
-        {{ store.state.game.gameState }}
-      </div>
-        <GuessRow :game="store.state.game" :guess="guess" />
-      </div>
+    <div v-else class="flex flex-col h-full">
+      <div class="flex-grow mt-2">
+        <div v-if="gameHost">
+          {{
+            store.state.game.guesses && JSON.stringify(store.state.game.guesses)
+          }}
+          <h3>
+            Ratewort: <b>{{ store.state.game.word.title }}</b>
+          </h3>
+          {{ store.state.game.gameState }}
+        </div>
+        <GuessRow class="flex justify-center items-center flex-grow mt-2" :game="store.state.game" :guess="guess" />
       <div>
-        <div class="card grow">
+        <div class="card">
           <ul v-if="store.state.game">
             <li v-for="(player, index) in store.state.game.players">
               <p
@@ -65,7 +66,8 @@
           </ul>
         </div>
       </div>
-      <div class="flex justify-center">
+      </div>
+      <div class="flex flex-row justify-center">
         <Keyboard @letter-event="(e) => setGuess(e)" @send-guess="sendGuess" />
       </div>
     </div>
@@ -133,7 +135,7 @@ export default {
     allGuesses(inc) {
       if (inc) {
         console.log(inc);
-        this.evaluateGuesses(store.state.game.guesses);
+        //this.evaluateGuesses(store.state.game.guesses);
       }
     },
   },
@@ -182,42 +184,54 @@ export default {
     this.socket.on("guess2Host", (data) => {
       if (this.gameHost) {
         console.log("playerAnswer", data);
-        store.actions.setGuess(data);
+        const evaluation = validateGuess(data.guess, 1, store.state.game.word.title).validation
+        store.actions.setGuess({
+          guess: data.guess,
+          sender: data.sender,
+          evaluation,
+        });
       }
+      this.socket.emit("hostUpdate", {
+        gameId: store.state.game.gameId,
+        game: store.state.game,
+      });
     });
 
     this.socket.on("playerAnswer", (data) => {});
   },
   methods: {
-    evaluateGuesses() {
-      if (!this.gameHost) return;
-      const guessesObject =
-        store.state.game.guesses[store.state.guesses.length - 1];
-      Object.keys(guessesObject).forEach((guess) => {
-        const ans = validateGuess(
-          store.state.game.guesses[store.state.game.guesses.length - 1][guess],
-          1,
-          store.state.game.word.title
-        );
+    // evaluateGuesses() {
+    //   if (!this.gameHost) return;
+    //   const guessesObject =
+    //     store.state.game.guesses[store.state.guesses.length - 1];
+    //   Object.keys(guessesObject).forEach((guess) => {
+    //     const ans = validateGuess(
+    //       store.state.game.guesses[store.state.game.guesses.length - 1][guess],
+    //       1,
+    //       store.state.game.word.title
+    //     );
 
-        //updateGuess Evaludation Data for each client and send out to room
-        console.log(ans);
-        store.state.game.roundWon = ans.roundWon;
-        guessesObject[guess] = { guess: guessesObject[guess], evaluation: ans.validation };
-        this.socket.emit("hostUpdate", {
-          gameId: store.state.game.gameId,
-          game: store.state.game,
-        });
-      });
+    //     //updateGuess Evaludation Data for each client and send out to room
+    //     console.log(ans);
+    //     store.state.game.roundWon = ans.roundWon;
+    //     guessesObject[guess] = {
+    //       guess: guessesObject[guess],
+    //       evaluation: ans.validation,
+    //     };
+    //     this.socket.emit("hostUpdate", {
+    //       gameId: store.state.game.gameId,
+    //       game: store.state.game,
+    //     });
+    //   });
 
-      store.actions.setGuesses(guessesObject);
-      //emit update
-      console.log(store.state.game.guesses);
-      // this.socket.emit("guessEvaluation", {
-      //   gameId: store.state.game.gameId,
-      //   game: store.state.game,
-      // });
-    },
+    //   store.actions.setGuesses(guessesObject);
+    //   //emit update
+    //   console.log(store.state.game.guesses);
+    //   // this.socket.emit("guessEvaluation", {
+    //   //   gameId: store.state.game.gameId,
+    //   //   game: store.state.game,
+    //   // });
+    // },
     startGame() {
       console.log("hostStartGame");
       store.state.game.gameState = "inProgress";
@@ -252,7 +266,10 @@ export default {
     },
     sendGuess() {
       //TODO: show error while guess to short
-      if (this.guess.length < store.state.game.word.title.length && this.guessLocked) {
+      if (
+        this.guess.length < store.state.game.word.title.length ||
+        this.guessLocked
+      ) {
         return;
       }
       this.guessLocked = true;
@@ -263,6 +280,7 @@ export default {
         game: store.state.game,
         guess: this.guess,
       });
+      this.guess = "";
     },
   },
 };

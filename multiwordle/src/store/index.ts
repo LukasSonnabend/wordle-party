@@ -1,4 +1,4 @@
-import { reactive, readonly } from "vue";
+import { reactive, computed, readonly } from "vue";
 
 const state = reactive({
   keyStatus: [],
@@ -13,8 +13,27 @@ const state = reactive({
   playerScore: 0,
 });
 
+let guessedChars = computed(() => {
+  // const WORD_LENGTH = 5;
+  let statusArray = Array(state.game.word.length).fill(0);
+  if (state.game.guesses === undefined)
+    return []
+
+  for (let guessRound of state.game.guesses)
+    for (let guesses of Object.keys(guessRound).filter((key) => guessRound[key].hasOwnProperty("guess")) )
+      for (let i = 0 ; i < guessRound[guesses].guess.length; i++)
+        if (guessRound[guesses].evaluation[i] === 3)
+          statusArray[i] = guessRound[guesses].guess[i]
+        else
+          statusArray[i] =(false)
+
+  return statusArray
+});
+
+
 export default {
   state: state,
+  guessedChars: guessedChars,
   actions: {
     setPlayerName(name) {
       state.playerName = name;
@@ -37,18 +56,19 @@ export default {
     },
     setGame(game) {
       state.game = game;
-      state.keyStatus = game.keyStatus;
+      // state.keyStatus = game.keyStatus;
       state.gameId = game.gameId;
       localStorage.setItem("gameId", game.gameId);
       // state.playerName = game.playerName;
       state.guesses = game.guesses;
-      state.keyStatus = game.keyStatus
+      //state.keyStatus = game.keyStatus;
       state.hintGiver = game.hintGiver;
       state.players = game.players;
       state.gameState = game.gameState;
     },
-    setGuesses(guesses) {
-      state.game.guesses.push(guesses);
+    setGuesses() {
+      state.game.keyStatus = guessedChars;
+      //state.game.guesses.push(guesses);
     },
     setGuess(guessData) {
       if (state.guesses.length === 0) {
@@ -59,12 +79,10 @@ export default {
         state.guesses.push(roundGuesses);
         console.log(state.guesses[state.guesses.length - 1])
       }
-      // if (Object.keys(state.guesses[state.guesses.length - 1]).length == state.game.players.length - 1) {
-      //   //evalGuessHiere
-      //   console.log("All guesses Received")
-      // } else {
-        state.guesses[state.guesses.length - 1][guessData.sender] = guessData.guess;
-      // }
+
+        state.guesses[state.guesses.length - 1][guessData.sender] = { guess: guessData.guess, evaluation: guessData.evaluation };
+        console.log("guess set:", state.guesses[state.guesses.length - 1]);
+        this.setGuesses()
     }
   }
 };

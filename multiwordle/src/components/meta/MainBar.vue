@@ -13,7 +13,7 @@ function toggleNavbar() {
 </script>
 
 <template>
-  <nav class="relative flex flex-wrap items-center justify-between px-2 py-3 bg-gray-800 mb-3">
+  <nav class="w-screen relative flex flex-wrap items-center justify-between px-2 py-3 bg-gray-800 mb-3">
     <div class="container px-4 mx-auto flex flex-wrap items-center justify-between">
       <div class="w-full relative flex flex-wrap justify-between  md:px-4 text-white">
       <!-- <div class="w-full relative flex justify-between lg:w-auto  px-4 lg:static lg:block lg:justify-start text-white"> -->

@@ -4,4 +4,11 @@ Manager + Player rotiert pro wort
 Create / Join Room / Invite to room
 User Interface
 
+ffffra kamera
+a wird nicht als richtig markiert
+
 Backend Management mit nocodb
+
+//Neuste
+6 Buchstaben zu breit on mobile?
+Erster Player guess (wenn admin) Wird nicht richtig evaluated, ist weil er sich selbst setzt anstatt durch alle functions tzu gehen
