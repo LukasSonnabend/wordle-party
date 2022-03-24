@@ -29,9 +29,9 @@ const store = inject("store");
     <span v-if="game.word" class="flex justify-center gap-1" v-for="row in [0]">
       <CharBox
         v-for="field in game.word.title.length"
-        :key="field"
-        :lockChar="store.guessedChars.value[field] !== false ? store.guessedChars.value[field-1] : false"
-        :char="guess.length+1 > field ? guess[field-1] : ''"
+        :key="field-1"
+        :lockChar="store.guessedChars.value[field-1] !== 0 ? store.guessedChars.value[field-1] : false"
+        :char="guess.length > field-1 ? guess[field-1] : ''"
       />
     </span>
   </div>
