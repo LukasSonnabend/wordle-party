@@ -68,12 +68,14 @@ function hostCreateNewGame(data) {
   }
   const newGame = createNewGame(data, data.gameId);
   console.log("Socket rooms: ", gameSocket.rooms)
+
   gameSocket.join(data.gameId);
   console.log("Socket rooms: ", gameSocket.rooms)
   // gameSocket.emit('newGameCreated', {...activeGames[data.gameId], mySocketId: this.id});
   console.log("Emitting New game to : ", data.gameId)
-  io.sockets.in(data.gameId).emit('newGameCreated', { ...newGame, mySocketId: this.id });
-  gameSocket.emit('newGameCreated', { ...newGame, mySocketId: this.id });
+  // Nur host bekommt das objekt zurück
+  io.sockets.in(data.playerId).emit('newGameCreated', { ...newGame, mySocketId: this.id });
+  //gameSocket.emit('newGameCreated', { ...newGame, mySocketId: this.id });
 };
 
 function createNewGame(data, hostId) {
@@ -103,7 +105,7 @@ async function playerAnswer(data) {
 async function hostUpdate(data) {
   console.log("hostUpdate: ", data)
   //console.log(io.adapter.rooms)
-  await io.sockets.in(data.gameId).emit('gameUpdate', { game: data.game });
+  await io.in(data.gameId).emit('gameUpdate', { game: data.game });
 }
 
 
@@ -130,13 +132,18 @@ async function playerJoinGame(data) {
     console.log(data.gameId)
     // Join the room
     console.log("Socket rooms: ", sock.rooms)
-    sock.join(data.gameId);
 
     let roomUsers = await io.in(data.gameId).fetchSockets()
-    console.log("roomUsers: ", roomUsers.length)
+
+    sock.join(data.gameId);
+
+
+
+    console.log("roomUsers: ", roomUsers)
     console.log("Socket rooms: ", sock.rooms)
     console.log("joining room: ", data.gameId)
-    io.sockets.in(data.gameId).emit('playerJoinedRoom', { playerName: data.playerName, playerSocket: data.socketId });
+    io.in(data.gameId).emit('playerJoinedRoom', { playerName: data.playerName, playerSocket: data.socketId });
+    // io.in(data.socketId).emit('playerJoinedRoom', { playerName: data.playerName, playerSocket: data.socketId });
 
     // gameSocket.emit('playerJoinedRoom', {playerName: data.playerName, mySocketId: sock.id});
     //console.log('Player ' + data.playerName + ' joining game: ' + data.gameId );

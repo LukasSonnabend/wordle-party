@@ -4,23 +4,6 @@ import CharBox from "./CharBox.vue";
 
 defineProps<{ game?: object; guess: string }>();
 
-// const guessedChars = computed(() => {
-//   // const WORD_LENGTH = 5;
-//   const statusArray = [];
-//   if (store.state.game.guesses === undefined)
-//     return []
-
-//   for (let guessRound of store.state.game.guesses)
-//     for (let guesses of Object.keys(guessRound).filter((key) => guessRound[key].hasOwnProperty("guess")) )
-//       for (let i = 0 ; i < guessRound[guesses].guess.length; i++)
-//         if (guessRound[guesses].evaluation[i] === 3)
-//           statusArray.push(guessRound[guesses].guess[i])
-//         else
-//           statusArray.push(false)
-
-//   return statusArray
-// });
-
 const store = inject("store");
 
 </script>

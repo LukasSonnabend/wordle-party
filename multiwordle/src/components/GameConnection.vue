@@ -59,10 +59,12 @@ function setGameInfo(roomId: string, playerName: string) {
   // set game info
       var data = {
         gameId: roomId,
-        playerName: playerName
+        playerName: playerName,
+        playerId: store.state.socket.id
     };
 
         // Send the gameId and playerName to the server
+    console.log("setting game Info")
     store.state.socket.emit('hostCreateNewGame', data);
     store.actions.setPlayerName(data.playerName);
     store.actions.setRoomId(data.gameId);

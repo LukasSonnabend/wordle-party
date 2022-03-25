@@ -104,6 +104,13 @@ export default {
   },
   inject: ["store"],
   computed: {
+    // currentEvaluation() {
+    //   let lockedOnes = this.store.game.word.title
+    //   for (let i = 0; i < this.store.state.game.guesses.length; i++) {
+    //     for (this.store.state.game.guesses[i].length )
+
+    //   }
+    // },
     currentGame() {
       return this.store.state.game;
     },
@@ -123,6 +130,7 @@ export default {
   created() {
     this.socket = io("http://ubuntu:3031", {
       withCredentials: true,
+      multiplex: false
     });
     store.actions.setSocket(this.socket);
 
@@ -246,10 +254,24 @@ export default {
     },
     setGuess(letter) {
       if (letter === "DELET") {
-        this.guess = this.guess.slice(0, -1);
+        if (this.guess.length == 0) return
+        console.log("delete")
+        // check if is false in allGuesses
+        if (store.guessedChars.value[this.guess.length-1] === false)
+          this.guess = this.guess.slice(0, -1);
+        else { // skip over all which are true
+          while (store.guessedChars.value[this.guess.length-1] !== false && this.guess.length > 1)
+            this.guess = this.guess.slice(0, -1);
+          this.guess = this.guess.slice(0, -1);
+        }
       } else if (this.guess.length < store.state.game.word.title.length) {
-        // skip feste letters
+        while (store.guessedChars.value[this.guess.length] !== false && store.guessedChars.value[this.guess.length] !== undefined)
+          this.guess += store.guessedChars.value[this.guess.length]
+
         this.guess += letter;
+        //following Letters
+        while (store.guessedChars.value[this.guess.length] !== false && store.guessedChars.value[this.guess.length] !== undefined)
+          this.guess += store.guessedChars.value[this.guess.length]
       }
     },
     move(direction) {

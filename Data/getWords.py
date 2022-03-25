@@ -140,21 +140,32 @@ def export_tables(c):
   "politik": 29,
   "religion": 30,
   "sport": 31,
+  "essen": 32,
+  "wirtschaft": 33,
+  "gesundheit": 34,
+  "kultur": 35,
+  "essen": 36,
+  "technik": 37,
+  "internet": 38,
+  "hauptstadt": 39,
+  "unterhaltung": 40,
+  "schule": 41,
   }
 
-  file1 = open("hints.csv", "w")
+
   file = open("export.csv", "w")
-  for (id, title, category length) in all_rows:
+  for (id, title, category, length) in all_rows:
     # file.write("{" + f'"id":{id+13}, "title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
-    file.write("{" + f'"title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
-
-  for (id, title, category length) in all_rows:
-    # file.write("{" + f'"id":{id+13}, "title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
-    file1.write("{" + f'"title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
-
-
+    file.write("{" + f'"title": "{title}", "hint": "category_id": {categorieMap[category]}, "length": {length}'+ "},\n")
 
   file.close();
+
+
+  file1 = open("hints.csv", "w")
+  for (id, title, category, length) in all_rows:
+    # file.write("{" + f'"id":{id+13}, "title": "{title}", "nc_urp2__categories_id": {categorieMap[category]}, "length": {length}'+ "},\n")
+    file1.write("{" + f'"title": "{title}", "category_id": {categorieMap[category]}, "length": {length}'+ "},\n")
+
   file1.close();
 
 

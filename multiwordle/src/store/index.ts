@@ -15,7 +15,7 @@ const state = reactive({
 
 let guessedChars = computed(() => {
   // const WORD_LENGTH = 5;
-  let statusArray = Array(state.game.word.length).fill(0);
+  let statusArray = Array(state.game.word.length).fill(false);
   if (state.game.guesses === undefined)
     return []
 
