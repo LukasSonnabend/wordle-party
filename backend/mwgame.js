@@ -31,6 +31,7 @@ exports.initGame = function (sio, socket) {
   gameSocket.on('hostCreateNewGame', hostCreateNewGame);
   gameSocket.on('hostUpdate', hostUpdate);
   gameSocket.on('hostStartGame', hostStartGame);
+  gameSocket.on('hostGetNewWord', hostGetNewWord);
   // gameSocket.on('hostRoomFull', hostPrepareGame);
   // gameSocket.on('hostCountdownFinished', hostStartGame);
   // gameSocket.on('hostNextRound', hostNextRound);
@@ -143,30 +144,8 @@ async function playerJoinGame(data) {
     console.log("Socket rooms: ", sock.rooms)
     console.log("joining room: ", data.gameId)
     io.in(data.gameId).emit('playerJoinedRoom', { playerName: data.playerName, playerSocket: data.socketId });
-    // io.in(data.socketId).emit('playerJoinedRoom', { playerName: data.playerName, playerSocket: data.socketId });
 
-    // gameSocket.emit('playerJoinedRoom', {playerName: data.playerName, mySocketId: sock.id});
-    //console.log('Player ' + data.playerName + ' joining game: ' + data.gameId );
-
-    // activeGames[data.gameId] = {};
-    // Object.assign(activeGames[data.gameId], gameObject);
-
-    // if (activeGames[data.gameId].players.find(player => player.playerName === data.playerName) == undefined)
-    //   activeGames[data.gameId].players.push({playerName: data.playerName})
-    // // Emit an event notifying the clients that the player has joined the room.
-    // if (activeGames[data.gameId].gameState === "waiting") {
-    //   // activeGames[data.gameId] = {};
-    //   Object.assign(activeGames[data.gameId], gameObject);
-    //   activeGames[data.gameId].players.push({playerName: data.playerName})
-    //   activeGames[data.gameId].gameId = data.gameId;
-    //   activeGames[data.gameId].keyStatus = [];
-    //   activeGames[data.gameId].gameState = "waiting";
-    // }
-    // gameSocket.emit('playerJoinedRoom', activeGames[data.gameId]);
-    // io.sockets.in(data.gameId).emit('playerJoinedRoom', activeGames[data.gameId]);
   } else {
-    // Otherwise, send an error message back to the player.#
-    // hostCreateNewGame(data)
     this.emit('error', { message: "This room does not exist." });
   }
 }
@@ -182,5 +161,16 @@ async function hostStartGame(data) {
   game.word = wordId.QuestionsList[0];
 
   await io.sockets.in(game.gameId).emit('gameUpdate', { game: game });
+}
+
+async function hostGetNewWord(data) {
+  const wordId = await QueryNoco()
+  const incGame = data.game
+  incGame.guesses = []
+  incGame.word = wordId.QuestionsList[Math.round(Math.random() * wordId.QuestionsList.length)];
+  console.log("Query: ", incGame.word)
+  // erstmal random#
+  // add new empty object to guesses
+  await io.sockets.in(incGame.gameId).emit('gameUpdate', { game: incGame });
 }
 

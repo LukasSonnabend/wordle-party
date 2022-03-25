@@ -6,6 +6,7 @@ const state = reactive({
   playerName: localStorage.getItem("playerName"),
   guesses: [],
   gameState: "",
+  roundWon: false,
   hintGiver: null,
   game: {},
   socket: null,
@@ -15,9 +16,12 @@ const state = reactive({
 
 let guessedChars = computed(() => {
   // const WORD_LENGTH = 5;
-  let statusArray = Array(state.game.word.length).fill(false);
-  if (state.game.guesses === undefined)
+  // if (!state.game.word) return [];
+
+  if (state.game.guesses === undefined || state.game.word === undefined)
     return []
+
+  let statusArray = Array(state.game.word.length).fill(false);
 
   for (let guessRound of state.game.guesses)
     for (let guesses of Object.keys(guessRound).filter((key) => guessRound[key].hasOwnProperty("guess")) )

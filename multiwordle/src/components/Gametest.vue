@@ -47,25 +47,31 @@
           </h3>
           {{ store.state.game.gameState }}
         </div>
-        <GuessRow class="flex justify-center items-center flex-grow mt-2" :game="store.state.game" :guess="guess" />
-      <div>
-        <div class="card">
-          <ul v-if="store.state.game">
-            <li v-for="(player, index) in store.state.game.players">
-              <p
-                :class="
-                  player.playerName == store.state.playerName && 'font-bold'
-                "
-              >
-                {{ index === 0 ? "🔰" : "" }} {{ player.playerName }}
-                {{
-                  player.playerName == store.state.playerName ? "(You 😁)" : ""
-                }}
-              </p>
-            </li>
-          </ul>
+        <GuessRow
+          class="flex justify-center items-center flex-grow mt-2"
+          :game="store.state.game"
+          :guess="guess"
+        />
+        <div>
+          <div class="card">
+            <ul v-if="store.state.game">
+              <li v-for="(player, index) in store.state.game.players">
+                <p
+                  :class="
+                    player.playerName == store.state.playerName && 'font-bold'
+                  "
+                >
+                  {{ index === 0 ? "🔰" : "" }} {{ player.playerName }}
+                  {{
+                    player.playerName == store.state.playerName
+                      ? "(You 😁)"
+                      : ""
+                  }}
+                </p>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
       </div>
       <div class="flex flex-row justify-center">
         <Keyboard @letter-event="(e) => setGuess(e)" @send-guess="sendGuess" />
@@ -104,19 +110,17 @@ export default {
   },
   inject: ["store"],
   computed: {
-    // currentEvaluation() {
-    //   let lockedOnes = this.store.game.word.title
-    //   for (let i = 0; i < this.store.state.game.guesses.length; i++) {
-    //     for (this.store.state.game.guesses[i].length )
-
-    //   }
-    // },
     currentGame() {
       return this.store.state.game;
     },
     gameHost() {
       if (!store.state.game.players) return false;
       return store.state.game.players[0].playerName == store.state.playerName;
+    },
+    wordGuessed() {
+      return (
+        store.guessedChars.value.filter((guess) => guess === false).length === 0
+      );
     },
     allGuesses() {
       if (!store.state.guesses.length > 0) return false;
@@ -130,7 +134,7 @@ export default {
   created() {
     this.socket = io("http://ubuntu:3031", {
       withCredentials: true,
-      multiplex: false
+      multiplex: false,
     });
     store.actions.setSocket(this.socket);
 
@@ -141,10 +145,15 @@ export default {
   },
   watch: {
     allGuesses(inc) {
-      if (inc) {
+      if (inc)
         console.log(inc);
         //this.evaluateGuesses(store.state.game.guesses);
-      }
+    },
+    wordGuessed(inc) {
+      if (inc){
+        console.log("Word was guessed");
+        this.getNewWord()
+        }
     },
   },
   mounted() {
@@ -186,60 +195,43 @@ export default {
     this.socket.on("gameUpdate", (data) => {
       console.log("receiving update");
       console.log(data);
+      if (data.game.guesses === {}) {
+        this.guessLocked = false;
+        this.guess = ''
+      }
+
       store.actions.setGame(data.game);
     });
 
     this.socket.on("guess2Host", (data) => {
       if (this.gameHost) {
         console.log("playerAnswer", data);
-        const evaluation = validateGuess(data.guess, 1, store.state.game.word.title).validation
+        const evaluation = validateGuess(
+          data.guess,
+          1,
+          store.state.game.word.title
+        ).validation;
         store.actions.setGuess({
           guess: data.guess,
           sender: data.sender,
           evaluation,
         });
+
+        this.socket.emit("hostUpdate", {
+          gameId: store.state.game.gameId,
+          game: store.state.game,
+        });
       }
-      this.socket.emit("hostUpdate", {
-        gameId: store.state.game.gameId,
-        game: store.state.game,
-      });
     });
 
     this.socket.on("playerAnswer", (data) => {});
   },
   methods: {
-    // evaluateGuesses() {
-    //   if (!this.gameHost) return;
-    //   const guessesObject =
-    //     store.state.game.guesses[store.state.guesses.length - 1];
-    //   Object.keys(guessesObject).forEach((guess) => {
-    //     const ans = validateGuess(
-    //       store.state.game.guesses[store.state.game.guesses.length - 1][guess],
-    //       1,
-    //       store.state.game.word.title
-    //     );
-
-    //     //updateGuess Evaludation Data for each client and send out to room
-    //     console.log(ans);
-    //     store.state.game.roundWon = ans.roundWon;
-    //     guessesObject[guess] = {
-    //       guess: guessesObject[guess],
-    //       evaluation: ans.validation,
-    //     };
-    //     this.socket.emit("hostUpdate", {
-    //       gameId: store.state.game.gameId,
-    //       game: store.state.game,
-    //     });
-    //   });
-
-    //   store.actions.setGuesses(guessesObject);
-    //   //emit update
-    //   console.log(store.state.game.guesses);
-    //   // this.socket.emit("guessEvaluation", {
-    //   //   gameId: store.state.game.gameId,
-    //   //   game: store.state.game,
-    //   // });
-    // },
+    getNewWord() {
+      this.socket.emit("hostGetNewWord", {
+        game: store.state.game,
+      });
+    },
     startGame() {
       console.log("hostStartGame");
       store.state.game.gameState = "inProgress";
@@ -254,24 +246,34 @@ export default {
     },
     setGuess(letter) {
       if (letter === "DELET") {
-        if (this.guess.length == 0) return
-        console.log("delete")
+        if (this.guess.length == 0) return;
+        console.log("delete");
         // check if is false in allGuesses
-        if (store.guessedChars.value[this.guess.length-1] === false)
+        if (store.guessedChars.value[this.guess.length - 1] === false)
           this.guess = this.guess.slice(0, -1);
-        else { // skip over all which are true
-          while (store.guessedChars.value[this.guess.length-1] !== false && this.guess.length > 1)
+        else {
+          // skip over all which are true
+          while (
+            store.guessedChars.value[this.guess.length - 1] !== false &&
+            this.guess.length > 1
+          )
             this.guess = this.guess.slice(0, -1);
           this.guess = this.guess.slice(0, -1);
         }
       } else if (this.guess.length < store.state.game.word.title.length) {
-        while (store.guessedChars.value[this.guess.length] !== false && store.guessedChars.value[this.guess.length] !== undefined)
-          this.guess += store.guessedChars.value[this.guess.length]
+        while (
+          store.guessedChars.value[this.guess.length] !== false &&
+          store.guessedChars.value[this.guess.length] !== undefined
+        )
+          this.guess += store.guessedChars.value[this.guess.length];
 
         this.guess += letter;
         //following Letters
-        while (store.guessedChars.value[this.guess.length] !== false && store.guessedChars.value[this.guess.length] !== undefined)
-          this.guess += store.guessedChars.value[this.guess.length]
+        while (
+          store.guessedChars.value[this.guess.length] !== false &&
+          store.guessedChars.value[this.guess.length] !== undefined
+        )
+          this.guess += store.guessedChars.value[this.guess.length];
       }
     },
     move(direction) {
