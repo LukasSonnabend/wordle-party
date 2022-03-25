@@ -11,4 +11,6 @@ Backend Management mit nocodb
 
 //Neuste
 6 Buchstaben zu breit on mobile?
-Erster Player guess (wenn admin) Wird nicht richtig evaluated, ist weil er sich selbst setzt anstatt durch alle functions tzu gehen
+
+Probleme:
+Sachen mit leerzeichen raus oder?
